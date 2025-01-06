@@ -81,7 +81,7 @@ export default function AuthModal({ isOpen, onCloseAction, onLoginAction, onRegi
           </div>
           <button
             type="submit"
-            className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors duration-300"
+            className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-light transition-colors duration-300"
           >
             {isLoginView ? 'Login' : 'Register'}
           </button>
