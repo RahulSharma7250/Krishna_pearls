@@ -101,7 +101,7 @@ export default function BulkOrder() {
           <p className="text-2xl mb-4">Please log in to view bulk order products.</p>
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className="bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors duration-300"
+            className="bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-light-800 transition-colors duration-300"
           >
             Log In / Register
           </button>

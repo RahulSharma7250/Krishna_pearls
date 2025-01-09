@@ -131,10 +131,7 @@ export default function AuthModal({isOpen, onCloseAction, onLoginAction, onRegis
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           <button
             type="submit"
-            className={`w-full bg-primary text-white py-2 rounded-md transition-colors duration-300 ${
-              isPending ? "opacity-50 cursor-not-allowed" : "hover:bg-primary-light"
-            }`}
-            disabled={isPending}
+            className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-light transition-colors duration-300"
           >
             {isPending ? "Processing..." : isLoginView ? "Login" : "Register"}
           </button>
