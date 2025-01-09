@@ -1,7 +1,7 @@
 import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import Product from '../models/Product';
-import upload from '../middleware/uploadMiddleware';
+import upload from '../middleware/uploadMiddleware'; // Updated to store in 'public/products'
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware';
 
 const router = express.Router();
@@ -31,10 +31,10 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response, next: Nex
 });
 
 // Create a new product (with image upload)
-router.post('/', authMiddleware, upload.single('image'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+router.post('/add', authMiddleware, upload.single('image'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { name, origin, price, description } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : '';
+    const image = req.file ? `/public/products/${req.file.filename}` : ''; // Updated path
 
     const newProduct = new Product({
       name,
@@ -52,10 +52,10 @@ router.post('/', authMiddleware, upload.single('image'), async (req: AuthRequest
 });
 
 // Update a product (with image upload)
-router.put('/:id', authMiddleware, upload.single('image'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+router.put('/update/:id', authMiddleware, upload.single('image'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { name, origin, price, description } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const image = req.file ? `/public/products/${req.file.filename}` : undefined; // Updated path
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
@@ -75,7 +75,7 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req: AuthReque
 });
 
 // Delete a product
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+router.delete('/delete/:id', authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
     if (!deletedProduct) {
@@ -89,4 +89,3 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response, ne
 });
 
 export default router;
-

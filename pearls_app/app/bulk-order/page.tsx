@@ -1,47 +1,79 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import AuthModal from '../components/AuthModal'
-import { handleLoginAction, handleRegisterAction, handleLoginStateChangeAction, handleCloseAction } from '@/app/actions/authActions'
-
-const bulkProducts = [
-  { id: 1, name: "Natural Fresh Water Pearls (Bulk)", origin: "India", price: 60, image: "/images/a1.jpg", minQuantity: 100 },
-  { id: 2, name: "Natural Fresh Water Pearls (Bulk)", origin: "Indonesia", price: 70, image: "/images/a2.jpg", minQuantity: 100 },
-  { id: 3, name: "Natural Fresh Water Pearls (Bulk)", origin: "Indonesia", price: 65, image: "/images/a3.jpg", minQuantity: 100 },
-]
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import AuthModal from "../components/AuthModal";
+import {
+  handleLoginAction,
+  handleRegisterAction,
+  handleLoginStateChangeAction,
+  handleCloseAction,
+} from "@/app/actions/authActions";
 
 export default function BulkOrder() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [bulkProducts, setBulkProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Check token and fetch products on component mount
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
-    setIsLoggedIn(loggedIn)
-  }, [])
+    const token = localStorage.getItem("token");
+    if (token) {
+      localStorage.setItem('isLoggedIn', 'true')
+      setIsLoggedIn(true);
+    }
+
+    const fetchBulkProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:5000/api/bulkProducts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch bulk products");
+        }
+        const data = await response.json();
+        setBulkProducts(data);
+      } catch (err) {
+        setError("Could not load products. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBulkProducts();
+  }, []);
 
   const handleLogin = async (email: string, password: string) => {
-    await handleLoginAction(email, password)
-    localStorage.setItem('isLoggedIn', 'true')
-    setIsLoggedIn(true)
-    setIsAuthModalOpen(false)
-  }
+    await handleLoginAction(email, password);
+    localStorage.setItem("isLoggedIn", "true");
+    setIsLoggedIn(true);
+    setIsAuthModalOpen(false);
+  };
 
   const handleRegister = async (name: string, email: string, password: string) => {
-    await handleRegisterAction(name, email, password)
-    localStorage.setItem('isLoggedIn', 'true')
-    setIsLoggedIn(true)
-    setIsAuthModalOpen(false)
-  }
+    await handleRegisterAction(name, email, password);
+    localStorage.setItem("isLoggedIn", "true");
+    setIsLoggedIn(true);
+    setIsAuthModalOpen(false);
+  };
 
   const handleLoginStateChange = async (loggedIn: boolean) => {
-    await handleLoginStateChangeAction(loggedIn)
-    setIsLoggedIn(loggedIn)
-  }
+    await handleLoginStateChangeAction(loggedIn);
+    setIsLoggedIn(loggedIn);
+  };
 
   const handleClose = async () => {
-    await handleCloseAction()
-    setIsAuthModalOpen(false)
+    await handleCloseAction();
+    setIsAuthModalOpen(false);
+  };
+
+  if (loading) {
+    return <div className="text-center">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
   }
 
   return (
@@ -51,13 +83,13 @@ export default function BulkOrder() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {bulkProducts.map((product) => (
             <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-lg p-4">
-              <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded-lg mb-4" />
+              <img src={`http://localhost:5000${product.image}`} alt={product.name} className="w-full h-48 object-cover rounded-lg mb-4" />
               <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
               <p className="text-gray-600 mb-2">Origin: {product.origin}</p>
-              <p className="text-2xl font-bold text-gray-800 mb-2">₹{product.price}/unit</p>
+              <p className="text-2xl font-bold text-gray-800 mb-2">₹{product.price}/carat</p>
               <p className="text-gray-700 mb-4">Minimum Quantity: {product.minQuantity}</p>
-              <Link href={`/bulk-order/${product.id}`}>
-                <button className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors duration-300">
+              <Link href={`/bulk-order/${product._id}`}>
+                <button className="w-full bg-primary text-white py-2 rounded-md hover:bg-gray-800 transition-colors duration-300">
                   View Details
                 </button>
               </Link>
@@ -83,6 +115,5 @@ export default function BulkOrder() {
         onLoginStateChangeAction={handleLoginStateChange}
       />
     </div>
-  )
+  );
 }
-

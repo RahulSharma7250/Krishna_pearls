@@ -24,7 +24,7 @@ export default function Cart() {
   }
 
   const removeItem = (id: number) => {
-    const updatedCart = cartItems.filter(item => item.id !== id)
+    const updatedCart = cartItems.filter(item => item._id !== id)
     setCartItems(updatedCart)
     localStorage.setItem('cart', JSON.stringify(updatedCart))
   }
@@ -52,7 +52,7 @@ export default function Cart() {
         <div>
           {cartItems.map((item) => (
             <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-lg p-4 mb-4 flex items-center">
-              <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-md mr-4" />
+              <img src={`http://localhost:5000${item.image}`} alt={item.name} className="w-24 h-24 object-cover rounded-md mr-4" />
               <div className="flex-grow">
                 <h2 className="text-xl font-semibold">{item.name}</h2>
                 <p className="text-gray-600">Origin: {item.origin}</p>
@@ -74,7 +74,7 @@ export default function Cart() {
                 </button>
               </div>
               <button
-                onClick={() => removeItem(item.id)}
+                onClick={() => removeItem(item._id)}
                 className="ml-4 text-red-500 hover:text-red-600"
               >
                 <Trash2 />
@@ -88,7 +88,7 @@ export default function Cart() {
             </div>
             <button 
               onClick={handleCheckout}
-              className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors duration-300 text-lg font-semibold flex items-center justify-center"
+              className="w-full bg-primary text-white py-3 rounded-md hover:bg-gray-800 transition-colors duration-300 text-lg font-semibold flex items-center justify-center"
             >
               <ShoppingBag className="mr-2" />
               Proceed to Checkout

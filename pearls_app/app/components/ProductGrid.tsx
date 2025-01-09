@@ -1,26 +1,53 @@
 "use client"
 
-import { useState } from 'react'
-import ProductCard from './ProductCard'
+import { useState, useEffect } from "react"
+import ProductCard from "./ProductCard"
 
-const products = [
-  { id: 1, name: "Natural Fresh Water Pearls", origin: "India", price: 80, image: "/images/a1.jpg" },
-  { id: 2, name: "Natural Fresh Water Pearls", origin: "Indonesia", price: 90, image: "/images/a2.jpg" },
-  { id: 3, name: "Natural Fresh Water Pearls", origin: "Indonesia", price: 80, image: "/images/a3.jpg" },
-  { id: 4, name: "Natural Fresh Water Pearls", origin: "India", price: 80, image: "/images/a4.jpg" },
-  { id: 5, name: "Natural Fresh Water Pearls", origin: "India", price: 90, image: "/images/a5.jpg" },
-  { id: 6, name: "Natural Fresh Water Pearls", origin: "Indonesia", price: 100, image: "/images/a6.jpg" },
-]
+// Define the Product type
+interface Product {
+  id: number
+  name: string
+  origin: string
+  price: number
+  image: string
+}
 
 export default function ProductGrid() {
-  const [selectedOrigin, setSelectedOrigin] = useState("all")
+  const [products, setProducts] = useState<Product[]>([])
+  const [selectedOrigin, setSelectedOrigin] = useState("all") // State for filter
+  const [loading, setLoading] = useState(true) // State for loading
 
+  // Fetch products from the backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/products/") // Replace with your API endpoint
+        const data = await response.json()
+        // console.log("Fetched Products:", data); // Log the fetched data
+        setProducts(data) // Update state with fetched products
+      } catch (error) {
+        console.error("Error fetching products:", error)
+      } finally {
+        setLoading(false) // Set loading to false
+      }
+    }
+
+    fetchProducts()
+  }, []) // Run once on component mount
+
+  // Filter products based on origin
   const filteredProducts = selectedOrigin === "all"
     ? products
     : products.filter(product => product.origin === selectedOrigin)
 
+  // Render loading state
+  if (loading) {
+    return <div className="text-center">Loading products...</div>
+  }
+
   return (
     <div className="container mx-auto px-4">
+      {/* Dropdown for filtering */}
       <div className="mb-6 flex justify-center">
         <select
           value={selectedOrigin}
@@ -32,6 +59,8 @@ export default function ProductGrid() {
           <option value="Indonesia">Indonesia</option>
         </select>
       </div>
+
+      {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
@@ -40,4 +69,3 @@ export default function ProductGrid() {
     </div>
   )
 }
-

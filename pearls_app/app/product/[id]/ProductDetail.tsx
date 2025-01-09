@@ -4,15 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ShoppingCart } from 'lucide-react'
 
-const products = [
-  { id: 1, name: "Natural Fresh Water Pearls", origin: "India", price: 80, image: "/images/a1.jpg", description: "Exquisite freshwater pearls with a lustrous sheen, perfect for elegant jewelry designs." },
-  { id: 2, name: "Natural Fresh Water Pearls", origin: "Indonesia", price: 90, image: "/images/a2.jpg", description: "Stunning Indonesian pearls known for their unique colors and exceptional quality." },
-  { id: 3, name: "Natural Fresh Water Pearls", origin: "Indonesia", price: 80, image: "/images/a3.jpg", description: "Rare freshwater pearls with a mesmerizing glow, ideal for statement pieces." },
-  { id: 4, name: "Natural Fresh Water Pearls", origin: "India", price: 80, image: "/images/a4.jpg", description: "Classic Indian pearls with a timeless appeal, perfect for both traditional and modern jewelry." },
-  { id: 5, name: "Natural Fresh Water Pearls", origin: "India", price: 90, image: "/images/a5.jpg", description: "Premium quality pearls with excellent luster and a smooth surface." },
-  { id: 6, name: "Natural Fresh Water Pearls", origin: "Indonesia", price: 100, image: "/images/a6.jpg", description: "Exotic Indonesian pearls with unique shapes and colors, ideal for avant-garde designs." },
-]
-
 interface Product {
   id: number
   name: string
@@ -28,11 +19,22 @@ export default function ProductDetail({ id }: { id: string }) {
   const [quantity, setQuantity] = useState(1)
   const router = useRouter()
 
+  // Fetch product details from backend
   useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/products/${id}`) // Replace with your API endpoint
+        const data = await response.json()
+        setProduct(data)
+      } catch (error) {
+        console.error('Error fetching product:', error)
+        setProduct(null) // Handle errors gracefully
+      }
+    }
+
     const productId = parseInt(id)
     if (!isNaN(productId)) {
-      const foundProduct = products.find(p => p.id === productId)
-      setProduct(foundProduct || null)
+      fetchProduct()
     } else {
       setProduct(null)
     }
@@ -42,7 +44,7 @@ export default function ProductDetail({ id }: { id: string }) {
     if (!product) return
 
     const cart = JSON.parse(localStorage.getItem('cart') || '[]') as Product[]
-    const existingItem = cart.find(item => item.id === product.id)
+    const existingItem = cart.find(item => item.id === product._id)
     
     if (existingItem) {
       existingItem.quantity = (existingItem.quantity || 0) + quantity
@@ -66,7 +68,7 @@ export default function ProductDetail({ id }: { id: string }) {
     <div className="container mx-auto pt-16">
       <div className="bg-white rounded-lg overflow-hidden shadow-lg p-6 md:flex">
         <div className="md:w-1/2">
-          <img src={product.image} alt={product.name} className="w-full h-auto rounded-lg" />
+          <img src={`http://localhost:5000${product.image}`} alt={product.name} className="w-full h-auto rounded-lg" />
         </div>
         <div className="md:w-1/2 md:pl-6 mt-4 md:mt-0">
           <h1 className="text-3xl font-bold mb-4 text-primary">{product.name}</h1>
@@ -96,4 +98,3 @@ export default function ProductDetail({ id }: { id: string }) {
     </div>
   )
 }
-

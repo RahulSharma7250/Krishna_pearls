@@ -1,6 +1,9 @@
 import ProductDetail from './ProductDetail'
 
-export default function Page({ params }: { params: { id: string } }) {
-  return <ProductDetail id={params.id} />
+interface PageProps {
+  params: { id: string }
 }
 
+export default function Page({ params }: PageProps) {
+  return <ProductDetail id={params.id} />
+}

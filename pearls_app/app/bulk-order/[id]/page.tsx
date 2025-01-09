@@ -1,63 +1,78 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { ShoppingBag, Truck } from 'lucide-react'
-import AuthModal from "@/app/components/AuthModal"
-
-const bulkProducts = [
-  { id: 1, name: "Natural Fresh Water Pearls (Bulk)", origin: "India", price: 60, image: "/images/a1.jpg", minQuantity: 100, description: "High-quality freshwater pearls sourced directly from India. Perfect for creating exquisite jewelry pieces in bulk." },
-  { id: 2, name: "Natural Fresh Water Pearls (Bulk)", origin: "Indonesia", price: 70, image: "/images/a2.jpg", minQuantity: 100, description: "Premium Indonesian freshwater pearls known for their lustrous sheen and consistent shape. Ideal for large-scale jewelry production." },
-  { id: 3, name: "Natural Fresh Water Pearls (Bulk)", origin: "Indonesia", price: 65, image: "/images/a3.jpg", minQuantity: 100, description: "Elegant freshwater pearls from Indonesia with a unique color variation. Suitable for creating distinctive jewelry collections." },
-]
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ShoppingBag, Truck } from "lucide-react";
+import AuthModal from "@/app/components/AuthModal";
 
 export default function BulkProductDetail({ params }: { params: { id: string } }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const [product, setProduct] = useState<any>(null)
-  const [quantity, setQuantity] = useState(100)
-  const [showOrderForm, setShowOrderForm] = useState(false)
-  const router = useRouter()
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [product, setProduct] = useState<any>(null);
+  const [quantity, setQuantity] = useState(100);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
-    setIsLoggedIn(loggedIn)
-    if (!loggedIn) {
-      setIsAuthModalOpen(true)
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
     }
 
-    const productId = parseInt(params.id)
-    const foundProduct = bulkProducts.find(p => p.id === productId)
-    setProduct(foundProduct)
-  }, [params.id])
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:5000/api/bulkProducts/${params.id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch product details");
+        }
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        setError("Could not load product details. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [params.id]);
 
   const handleLogin = (email: string, password: string) => {
-    console.log('Login:', email, password)
-    localStorage.setItem('isLoggedIn', 'true')
-    setIsLoggedIn(true)
-    setIsAuthModalOpen(false)
-  }
+    localStorage.setItem("isLoggedIn", "true");
+    setIsLoggedIn(true);
+    setIsAuthModalOpen(false);
+  };
 
   const handleRegister = (name: string, email: string, password: string) => {
-    console.log('Register:', name, email, password)
-    localStorage.setItem('isLoggedIn', 'true')
-    setIsLoggedIn(true)
-    setIsAuthModalOpen(false)
-  }
+    localStorage.setItem("isLoggedIn", "true");
+    setIsLoggedIn(true);
+    setIsAuthModalOpen(false);
+  };
 
   const handleLoginStateChange = (isLoggedIn: boolean) => {
-    setIsLoggedIn(isLoggedIn)
-  }
+    setIsLoggedIn(isLoggedIn);
+  };
 
   const handlePlaceOrder = (e: React.FormEvent) => {
-    e.preventDefault()
-    const orderDetails = { product, quantity }
-    localStorage.setItem('currentOrder', JSON.stringify(orderDetails))
-    router.push('/payment')
+    e.preventDefault();
+    const orderDetails = { product, quantity };
+    localStorage.setItem("currentOrder", JSON.stringify(orderDetails));
+    router.push("/payment");
+  };
+
+  if (loading) {
+    return <div>Loading product details...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
   }
 
   if (!product) {
-    return <div>Loading...</div>
+    return <div>Product not found</div>;
   }
 
   return (
@@ -65,7 +80,11 @@ export default function BulkProductDetail({ params }: { params: { id: string } }
       {isLoggedIn ? (
         <div className="bg-white rounded-lg overflow-hidden shadow-lg p-6 md:flex">
           <div className="md:w-1/2">
-            <img src={product.image} alt={product.name} className="w-full h-auto rounded-lg" />
+            <img
+              src={`http://localhost:5000${product.image}`}
+              alt={product.name}
+              className="w-full h-auto rounded-lg"
+            />
           </div>
           <div className="md:w-1/2 md:pl-6 mt-4 md:mt-0">
             <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
@@ -126,6 +145,5 @@ export default function BulkProductDetail({ params }: { params: { id: string } }
         onLoginStateChange={handleLoginStateChange}
       />
     </div>
-  )
+  );
 }
-

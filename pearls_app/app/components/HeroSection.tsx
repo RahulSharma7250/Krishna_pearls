@@ -30,7 +30,7 @@ export default function Hero() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center  sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <div className="w-screen relative z-10 text-center  sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <motion.h1 
           className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 text-primary"
           initial={{ opacity: 0, y: -50 }}

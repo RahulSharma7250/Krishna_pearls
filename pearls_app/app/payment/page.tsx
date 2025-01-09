@@ -110,7 +110,7 @@ export default function Payment() {
         </div>
         <button
           type="submit"
-          className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors duration-300 text-lg font-semibold"
+          className="w-full bg-primary text-white py-3 rounded-md hover:bg-gray-800 transition-colors duration-300 text-lg font-semibold"
         >
           Pay ₹{orderDetails.product ? orderDetails.product.price * orderDetails.quantity : orderDetails.total}
         </button>
